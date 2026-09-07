@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>wkhtmltopdf Is Dead — Your API Alternatives in 2026 | pdfsnap Blog</title>
+  <meta name="description" content="wkhtmltopdf was archived in 2023 with unpatched CVEs. Here are the real Chromium-based alternatives for 2026, including a concrete migration guide." />
+  <meta name="keywords" content="wkhtmltopdf alternative 2026, html to pdf api, html to pdf serverless, wkhtmltopdf replacement" />
+  <meta property="og:title" content="wkhtmltopdf Is Dead — Your API Alternatives in 2026" />
+  <meta property="og:description" content="wkhtmltopdf was archived in 2023. Here are the best Chromium-based replacements for 2026 with a concrete migration guide." />
+  <meta property="og:type" content="article" />
+  <meta property="og:image" content="https://api.snapog.dev/og?title=wkhtmltopdf+Alternatives+in+2026&subtitle=pdfsnap+Blog&theme=dark" />
+  <meta property="article:published_time" content="2026-09-07" />
+  <meta property="article:author" content="pdfsnap" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://api.snapog.dev/og?title=wkhtmltopdf+Alternatives+in+2026&subtitle=pdfsnap+Blog&theme=dark" />
+  <link rel="canonical" href="https://pdfsnap.dev/blog/wkhtmltopdf-alternatives-2026.html" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;0,9..144,900;1,9..144,700&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "wkhtmltopdf Is Dead — Your API Alternatives in 2026",
+    "description": "wkhtmltopdf was archived on GitHub in January 2023 with unpatched CVEs. This guide covers the best Chromium-based replacements for 2026 and shows how to migrate.",
+    "author": { "@type": "Organization", "name": "pdfsnap" },
+    "publisher": { "@type": "Organization", "name": "pdfsnap", "url": "https://pdfsnap.dev" },
+    "datePublished": "2026-09-07",
+    "dateModified": "2026-09-07",
+    "url": "https://pdfsnap.dev/blog/wkhtmltopdf-alternatives-2026.html",
+    "keywords": ["wkhtmltopdf alternative 2026", "html to pdf api", "html to pdf serverless", "wkhtmltopdf replacement"]
+  }
+  </script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #060402;
+      --bg-surface:   #0C0905;
+      --bg-card:      #110E07;
+      --border:       #1E1A10;
+      --border-hi:    #2C2718;
+      --amber:        #FF7A1A;
+      --amber-dim:    rgba(255,122,26,0.10);
+      --amber-glow:   rgba(255,122,26,0.22);
+      --gold:         #FFB800;
+      --gold-dim:     rgba(255,184,0,0.10);
+      --text-hi:      #F5F0E8;
+      --text-lo:      #A09080;
+      --text-xlo:     #585040;
+      --font-display: 'Fraunces', serif;
+      --font-body:    'DM Sans', sans-serif;
+      --font-mono:    'JetBrains Mono', monospace;
+      --radius:       10px;
+      --radius-lg:    18px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-hi);
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.7;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: repeating-linear-gradient(
+        -45deg,
+        rgba(255,122,26,0.015) 0px,
+        rgba(255,122,26,0.015) 1px,
+        transparent 1px,
+        transparent 40px
+      );
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(6,4,2,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .nav-logo {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--amber);
+      letter-spacing: -0.01em;
+    }
+
+    .nav-sep {
+      color: var(--text-xlo);
+      font-size: 14px;
+    }
+
+    .nav-breadcrumb {
+      font-size: 14px;
+      color: var(--text-lo);
+    }
+
+    .nav-cta {
+      margin-left: auto;
+      background: var(--amber);
+      color: #1a0a00;
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 13px;
+      padding: 7px 16px;
+      border-radius: 7px;
+      transition: opacity 0.15s;
+    }
+
+    .nav-cta:hover { opacity: 0.88; }
+
+    /* ── Article container ── */
+    .article-wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 64px 24px 120px;
+    }
+
+    /* ── Header ── */
+    .article-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+
+    .tag {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--amber);
+      background: var(--amber-dim);
+      border: 1px solid rgba(255,122,26,0.20);
+      border-radius: 5px;
+      padding: 3px 9px;
+    }
+
+    .meta-date {
+      font-size: 13px;
+      color: var(--text-xlo);
+    }
+
+    .meta-dot { color: var(--text-xlo); font-size: 12px; }
+
+    .article-title {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-weight: 900;
+      font-size: clamp(32px, 5vw, 48px);
+      line-height: 1.12;
+      letter-spacing: -0.02em;
+      color: var(--text-hi);
+      margin-bottom: 20px;
+    }
+
+    .article-title em {
+      color: var(--amber);
+      font-style: italic;
+    }
+
+    .article-lede {
+      font-size: 18px;
+      color: var(--text-lo);
+      line-height: 1.6;
+      margin-bottom: 48px;
+      padding-bottom: 48px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── Body typography ── */
+    h2 {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-weight: 700;
+      font-size: 26px;
+      letter-spacing: -0.01em;
+      color: var(--text-hi);
+      margin: 52px 0 16px;
+      line-height: 1.2;
+    }
+
+    h3 {
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 17px;
+      color: var(--gold);
+      margin: 32px 0 10px;
+      letter-spacing: 0.01em;
+    }
+
+    p { color: var(--text-lo); margin-bottom: 18px; }
+
+    p strong { color: var(--text-hi); font-weight: 600; }
+
+    ul, ol {
+      color: var(--text-lo);
+      padding-left: 22px;
+      margin-bottom: 18px;
+    }
+
+    li { margin-bottom: 8px; }
+
+    li strong { color: var(--text-hi); font-weight: 600; }
+
+    /* ── Callout box ── */
+    .callout {
+      background: var(--bg-card);
+      border: 1px solid var(--border-hi);
+      border-left: 3px solid var(--amber);
+      border-radius: var(--radius);
+      padding: 18px 22px;
+      margin: 28px 0;
+    }
+
+    .callout-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--amber);
+      margin-bottom: 8px;
+    }
+
+    .callout p {
+      margin-bottom: 0;
+      font-size: 15px;
+    }
+
+    /* ── Code blocks ── */
+    .code-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 7px 14px;
+      border-radius: var(--radius) var(--radius) 0 0;
+      display: inline-block;
+      margin-bottom: -1px;
+    }
+
+    .code-label-before {
+      background: rgba(220,50,50,0.15);
+      color: #f87171;
+      border: 1px solid rgba(220,50,50,0.25);
+      border-bottom: none;
+    }
+
+    .code-label-after {
+      background: var(--amber-dim);
+      color: var(--amber);
+      border: 1px solid rgba(255,122,26,0.25);
+      border-bottom: none;
+    }
+
+    .code-label-neutral {
+      background: var(--bg-card);
+      color: var(--text-xlo);
+      border: 1px solid var(--border);
+      border-bottom: none;
+    }
+
+    pre {
+      background: var(--bg-card);
+      border: 1px solid var(--border-hi);
+      border-radius: 0 var(--radius) var(--radius) var(--radius);
+      padding: 20px 22px;
+      overflow-x: auto;
+      margin-bottom: 24px;
+      font-family: var(--font-mono);
+      font-size: 13.5px;
+      line-height: 1.65;
+    }
+
+    pre.before-block {
+      border-color: rgba(220,50,50,0.25);
+      background: rgba(220,50,50,0.04);
+    }
+
+    pre.after-block {
+      border-color: rgba(255,122,26,0.25);
+      background: rgba(255,122,26,0.04);
+    }
+
+    /* syntax tokens */
+    .kw  { color: #c792ea; }
+    .fn  { color: #82aaff; }
+    .str { color: #c3e88d; }
+    .cm  { color: #546e7a; font-style: italic; }
+    .va  { color: var(--text-hi); }
+    .nu  { color: #f78c6c; }
+    .at  { color: var(--gold); }
+    .py  { color: #89ddff; }
+
+    .del { color: #f87171; }
+    .ins { color: #86efac; }
+
+    /* ── Comparison table ── */
+    .table-wrap {
+      overflow-x: auto;
+      margin: 28px 0;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-hi);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      min-width: 680px;
+    }
+
+    thead tr {
+      background: var(--bg-surface);
+    }
+
+    th {
+      padding: 13px 14px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-xlo);
+      border-bottom: 1px solid var(--border-hi);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 12px 14px;
+      color: var(--text-lo);
+      border-bottom: 1px solid var(--border);
+    }
+
+    tbody tr:last-child td { border-bottom: none; }
+
+    tbody tr:hover { background: rgba(255,122,26,0.03); }
+
+    td:first-child { color: var(--text-hi); font-weight: 500; }
+
+    .yes { color: #86efac; font-weight: 600; }
+    .no  { color: #f87171; }
+    .partial { color: var(--gold); }
+
+    .highlight-row td { background: rgba(255,122,26,0.06); }
+    .highlight-row td:first-child { color: var(--amber); }
+
+    /* ── CTA box ── */
+    .cta-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-hi);
+      border-radius: var(--radius-lg);
+      padding: 40px 36px;
+      text-align: center;
+      margin-top: 60px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-box::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 320px; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--amber), transparent);
+    }
+
+    .cta-eyebrow {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--amber);
+      margin-bottom: 12px;
+    }
+
+    .cta-title {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-weight: 700;
+      font-size: 28px;
+      letter-spacing: -0.01em;
+      color: var(--text-hi);
+      margin-bottom: 12px;
+    }
+
+    .cta-sub {
+      font-size: 15px;
+      color: var(--text-lo);
+      margin-bottom: 28px;
+      max-width: 440px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .cta-btn {
+      display: inline-block;
+      background: var(--amber);
+      color: #1a0a00;
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 15px;
+      padding: 13px 32px;
+      border-radius: 9px;
+      transition: opacity 0.15s, transform 0.15s;
+    }
+
+    .cta-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+
+    /* ── Divider ── */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 48px 0;
+    }
+
+    /* ── Footer ── */
+    footer {
+      position: relative;
+      z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 28px 24px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-xlo);
+    }
+
+    footer a { color: var(--text-lo); }
+    footer a:hover { color: var(--amber); }
+  </style>
+</head>
+<body>
+
+  <!-- Nav -->
+  <nav>
+    <div class="nav-inner">
+      <a href="/index.html" class="nav-logo">pdfsnap</a>
+      <span class="nav-sep">/</span>
+      <span class="nav-breadcrumb">Blog</span>
+      <a href="/api.html" class="nav-cta">Start free &rarr;</a>
+    </div>
+  </nav>
+
+  <!-- Article -->
+  <main class="article-wrap">
+
+    <div class="article-meta">
+      <span class="tag">Migration Guide</span>
+      <span class="meta-dot">&middot;</span>
+      <span class="meta-date">September 7, 2026</span>
+      <span class="meta-dot">&middot;</span>
+      <span class="meta-date" style="color:var(--text-xlo);">8 min read</span>
+    </div>
+
+    <h1 class="article-title">wkhtmltopdf Is <em>Dead</em> &mdash; Your API Alternatives in 2026</h1>
+
+    <p class="article-lede">
+      wkhtmltopdf was archived on GitHub in January 2023. No new releases, no security patches, and an
+      increasingly unhappy CI/CD scanner every time you deploy. The migration is happening whether you
+      plan for it or not. Here is what to move to.
+    </p>
+
+
+    <!-- Section 1 -->
+    <h2>The wkhtmltopdf Situation</h2>
+
+    <p>
+      Let's be factual about what happened. On January 11, 2023, the wkhtmltopdf GitHub repository was
+      officially archived. The last release&mdash;version 0.12.6&mdash;shipped in June 2020. That means
+      the project went <strong>three-plus years without a single patch</strong> before the maintainers
+      formally declared it abandoned.
+    </p>
+
+    <p>
+      This matters for one concrete reason: wkhtmltopdf bundles a fork of Qt's WebKit from around 2016.
+      That dependency chain includes <strong>multiple unpatched CVEs</strong> in libqt5 and the bundled
+      OpenSSL variant. These are real vulnerabilities&mdash;server-side request forgery vectors, heap
+      overflows in the HTML parser, and TLS downgrade opportunities&mdash;not theoretical ones.
+    </p>
+
+    <p>
+      Security tooling has caught up. If you are running Snyk, Dependabot, or Trivy in your CI/CD
+      pipeline, you have probably already seen the warnings. Cloud providers are flagging the binary in
+      container scans. Some enterprise security policies now block deployment of images that include it.
+    </p>
+
+    <div class="callout">
+      <div class="callout-label">The bottom line</div>
+      <p>
+        wkhtmltopdf is not "legacy but fine." It is an unpatched binary with known CVEs that no one
+        is fixing because the project is archived. Every month you keep it is a month of compounding
+        security debt.
+      </p>
+    </div>
+
+    <p>
+      The migration is already happening across the industry. The question is which tool to move to&mdash;
+      and whether you want to manage infrastructure or use an API.
+    </p>
+
+
+    <!-- Section 2 -->
+    <h2>What You Actually Need in a Replacement</h2>
+
+    <p>
+      Before comparing options, it helps to be precise about requirements. Most teams are looking for
+      four things:
+    </p>
+
+    <ul>
+      <li>
+        <strong>Real Chromium rendering.</strong> wkhtmltopdf's WebKit from 2016 does not handle
+        CSS Grid, CSS custom properties, modern web fonts, or JavaScript-rendered content. Anything
+        built in the last four years probably renders wrong. You need a real, current Chromium engine.
+      </li>
+      <li>
+        <strong>No infrastructure to manage.</strong> wkhtmltopdf was already the "I don't want to
+        run browsers" choice. If you replace it with Puppeteer on a VM you manage yourself, you have
+        not actually solved the problem&mdash;you have made it bigger.
+      </li>
+      <li>
+        <strong>Serverless and Vercel compatible.</strong> Most new applications live on Vercel, Netlify,
+        or AWS Lambda. Headless Chrome cannot be installed in a standard Vercel function. Your replacement
+        needs to work within those constraints, not around them.
+      </li>
+      <li>
+        <strong>Consistent, pixel-identical output.</strong> PDFs are documents. They get emailed,
+        signed, archived. "Works on my machine" is not acceptable&mdash;the output must be deterministic
+        across environments.
+      </li>
+    </ul>
+
+
+    <!-- Section 3 -->
+    <h2>The Alternatives Landscape</h2>
+
+    <h3>Self-hosted options</h3>
+
+    <p>
+      <strong>Gotenberg</strong> is a Docker container that wraps Chromium and LibreOffice behind a
+      clean REST API. It is an excellent choice if you already run Kubernetes or Docker Compose and
+      have ops capacity to manage it. It is not serverless-compatible&mdash;you are running a
+      persistent container&mdash;and you own the upgrades, the scaling, and the availability.
+    </p>
+
+    <p>
+      <strong>Puppeteer / Playwright directly</strong> gives you maximum control and a genuine
+      Chromium engine. It is also the most maintenance-intensive option: you manage the Chromium binary,
+      handle the memory and concurrency issues that come with running browsers in production, and figure
+      out your own queuing. It cannot run in a standard Vercel function. Good for teams with dedicated
+      infrastructure engineering capacity.
+    </p>
+
+    <p>
+      <strong>WeasyPrint</strong> is a Python library with no JavaScript execution. It does an
+      admirable job with CSS-heavy documents but breaks on any page that requires JS rendering. Not a
+      general-purpose wkhtmltopdf replacement&mdash;more of a specialized tool for static, print-CSS-first
+      documents.
+    </p>
+
+    <h3>Managed API options</h3>
+
+    <p>
+      <strong>pdfsnap</strong> is designed specifically for the serverless era: a single POST endpoint
+      that accepts a URL or raw HTML body, returns a PDF, and uses <code style="font-family:var(--font-mono);font-size:0.9em;color:var(--gold);">@sparticuz/chromium</code>&mdash;the
+      same Chromium build that runs in AWS Lambda and Vercel Functions. Pay-per-render pricing with
+      a free tier. No minimum commitment.
+    </p>
+
+    <p>
+      <strong>PDFShift</strong> is a well-established managed API with a clean interface. Pricing
+      starts at $24/month on a credits model. Good documentation, reliable uptime history. Slightly
+      more expensive for high-volume use cases.
+    </p>
+
+    <p>
+      <strong>API2PDF</strong> is a multi-engine service that supports wkhtmltopdf, Headless Chrome,
+      and LibreOffice as rendering backends. Pricing starts around $50/month. The wkhtmltopdf option
+      is still available&mdash;which is useful if you want a transitional period but undermines the
+      security motivation for migrating.
+    </p>
+
+    <p>
+      <strong>Doppio</strong> is a newer entrant with solid developer experience and clean API design.
+      Chromium-based. Pricing starts at $29/month with a minimum commitment. Worth evaluating if you
+      want a managed service with a polished dashboard.
+    </p>
+
+    <p>
+      <strong>DocRaptor</strong> uses the Prince XML rendering engine rather than Chromium. Prince is
+      exceptional for print CSS and structured documents (books, reports, financial statements). At
+      $15/month entry pricing it is cost-effective. Not a fit if your documents rely on JavaScript
+      execution or modern CSS that Prince does not support.
+    </p>
+
+
+    <!-- Section 4 — Table -->
+    <h2>Comparison Table</h2>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Tool</th>
+            <th>Chromium</th>
+            <th>JS Exec</th>
+            <th>Serverless</th>
+            <th>Free Tier</th>
+            <th>Pricing</th>
+            <th>Self-host</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="highlight-row">
+            <td>pdfsnap</td>
+            <td class="yes">&#10003;</td>
+            <td class="yes">&#10003;</td>
+            <td class="yes">&#10003;</td>
+            <td class="yes">&#10003;</td>
+            <td>Pay-per-render</td>
+            <td class="no">&#10007;</td>
+          </tr>
+          <tr>
+            <td>Gotenberg</td>
+            <td class="yes">&#10003;</td>
+            <td class="yes">&#10003;</td>
+            <td class="no">&#10007;</td>
+            <td class="yes">&#10003;</td>
+            <td>Self-hosted (free)</td>
+            <td class="yes">&#10003;</td>
+          </tr>
+          <tr>
+            <td>Puppeteer / Playwright</td>
+            <td class="yes">&#10003;</td>
+            <td class="yes">&#10003;</td>
+            <td class="no">&#10007;</td>
+            <td class="yes">&#10003;</td>
+            <td>Self-hosted (free)</td>
+            <td class="yes">&#10003;</td>
+          </tr>
+          <tr>
+            <td>WeasyPrint</td>
+            <td class="no">&#10007;</td>
+            <td class="no">&#10007;</td>
+            <td class="partial">Partial</td>
+            <td class="yes">&#10003;</td>
+            <td>Self-hosted (free)</td>
+            <td class="yes">&#10003;</td>
+          </tr>
+          <tr>
+            <td>PDFShift</td>
+            <td class="yes">&#10003;</td>
+            <td class="yes">&#10003;</td>
+            <td class="yes">&#10003;</td>
+            <td class="no">&#10007;</td>
+            <td>From $24/mo</td>
+            <td class="no">&#10007;</td>
+          </tr>
+          <tr>
+            <td>Doppio</td>
+            <td class="yes">&#10003;</td>
+            <td class="yes">&#10003;</td>
+            <td class="yes">&#10003;</td>
+            <td class="no">&#10007;</td>
+            <td>From $29/mo</td>
+            <td class="no">&#10007;</td>
+          </tr>
+          <tr>
+            <td>DocRaptor</td>
+            <td class="no">&#10007;</td>
+            <td class="no">&#10007;</td>
+            <td class="yes">&#10003;</td>
+            <td class="no">&#10007;</td>
+            <td>From $15/mo</td>
+            <td class="no">&#10007;</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+
+    <!-- Section 5 — Migration code -->
+    <h2>Migrating from wkhtmltopdf to pdfsnap</h2>
+
+    <p>
+      The actual code change is small. The conceptual change is larger: you are moving from a local
+      binary subprocess to an HTTP call. Here is what that looks like in Node.js.
+    </p>
+
+    <h3>Node.js &mdash; URL to PDF</h3>
+
+    <span class="code-label code-label-before">Before &mdash; wkhtmltopdf subprocess (Node.js)</span>
+    <pre class="before-block"><span class="kw">import</span> { <span class="va">execFile</span> } <span class="kw">from</span> <span class="str">'node:child_process'</span>;
+<span class="kw">import</span> <span class="va">fs</span> <span class="kw">from</span> <span class="str">'node:fs'</span>;
+
+<span class="cm">// Requires wkhtmltopdf installed on the host — breaks on Vercel/Lambda</span>
+<span class="fn">execFile</span>(<span class="str">'wkhtmltopdf'</span>, [
+  <span class="str">'--page-size'</span>, <span class="str">'A4'</span>,
+  <span class="str">'--margin-top'</span>, <span class="str">'15mm'</span>,
+  <span class="str">'https://example.com/invoice/123'</span>,
+  <span class="str">'output.pdf'</span>
+], (<span class="va">err</span>) => {
+  <span class="kw">if</span> (<span class="va">err</span>) <span class="kw">throw</span> <span class="va">err</span>;
+  <span class="kw">const</span> <span class="va">pdf</span> = <span class="va">fs</span>.<span class="fn">readFileSync</span>(<span class="str">'output.pdf'</span>);
+  <span class="cm">// ... ship the buffer</span>
+});</pre>
+
+    <span class="code-label code-label-after">After &mdash; pdfsnap API (Node.js)</span>
+    <pre class="after-block"><span class="cm">// Works anywhere fetch() works — Vercel Edge, Lambda, Node, browsers</span>
+<span class="kw">const</span> <span class="va">res</span> = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'https://api.pdfsnap.dev/v1/pdf?format=A4'</span>, {
+  <span class="at">method</span>: <span class="str">'POST'</span>,
+  <span class="at">headers</span>: {
+    <span class="str">'Authorization'</span>: <span class="str">`Bearer <span class="at">${</span><span class="va">process</span>.<span class="va">env</span>.<span class="va">PDFSNAP_KEY</span><span class="at">}</span>`</span>,
+    <span class="str">'Content-Type'</span>: <span class="str">'application/json'</span>,
+  },
+  <span class="at">body</span>: <span class="va">JSON</span>.<span class="fn">stringify</span>({ <span class="at">url</span>: <span class="str">'https://example.com/invoice/123'</span> }),
+});
+
+<span class="kw">const</span> <span class="va">pdf</span> = <span class="kw">await</span> <span class="va">res</span>.<span class="fn">arrayBuffer</span>(); <span class="cm">// ready to stream or store</span></pre>
+
+    <h3>Python &mdash; HTML body to PDF</h3>
+
+    <span class="code-label code-label-before">Before &mdash; wkhtmltopdf subprocess (Python)</span>
+    <pre class="before-block"><span class="kw">import</span> <span class="va">subprocess</span>
+
+<span class="cm"># Spawns a local binary — not available in serverless environments</span>
+<span class="va">result</span> = <span class="va">subprocess</span>.<span class="fn">run</span>(
+  [<span class="str">'wkhtmltopdf'</span>, <span class="str">'--page-size'</span>, <span class="str">'A4'</span>, <span class="str">'-'</span>, <span class="str">'-'</span>],
+  <span class="at">input</span>=<span class="va">html_bytes</span>,
+  <span class="at">capture_output</span>=<span class="va">True</span>
+)
+<span class="va">pdf_bytes</span> = <span class="va">result</span>.<span class="va">stdout</span></pre>
+
+    <span class="code-label code-label-after">After &mdash; pdfsnap API (Python)</span>
+    <pre class="after-block"><span class="kw">import</span> <span class="va">httpx</span>  <span class="cm"># or requests</span>
+
+<span class="va">resp</span> = <span class="va">httpx</span>.<span class="fn">post</span>(
+  <span class="str">'https://api.pdfsnap.dev/v1/pdf'</span>,
+  <span class="at">params</span>={<span class="str">'format'</span>: <span class="str">'A4'</span>},
+  <span class="at">headers</span>={<span class="str">'Authorization'</span>: <span class="str">f'Bearer {PDFSNAP_KEY}'</span>},
+  <span class="at">json</span>={<span class="str">'html'</span>: <span class="va">html_string</span>},
+)
+<span class="va">pdf_bytes</span> = <span class="va">resp</span>.<span class="va">content</span></pre>
+
+
+    <!-- Section 6 — Gotchas -->
+    <h2>Common Migration Gotchas</h2>
+
+    <h3>Headers and footers</h3>
+    <p>
+      wkhtmltopdf used <code style="font-family:var(--font-mono);font-size:0.9em;color:var(--gold);">--header-html</code> and
+      <code style="font-family:var(--font-mono);font-size:0.9em;color:var(--gold);">--footer-html</code> flags
+      to inject separate HTML fragments. Chromium-based renderers use CSS print at-rules instead:
+      <code style="font-family:var(--font-mono);font-size:0.9em;color:var(--gold);">@page</code> with named strings and the
+      <code style="font-family:var(--font-mono);font-size:0.9em;color:var(--gold);">position: running()</code> property.
+      This is more powerful&mdash;the header is part of the document&mdash;but requires updating your HTML template.
+    </p>
+
+    <h3>Page size flags</h3>
+    <p>
+      <code style="font-family:var(--font-mono);font-size:0.9em;color:var(--gold);">wkhtmltopdf --page-size A4</code> becomes
+      <code style="font-family:var(--font-mono);font-size:0.9em;color:var(--gold);">?format=A4</code> as a query parameter in the
+      pdfsnap API. Supported values: A4, Letter, Legal, A3, A5. Custom dimensions are available via
+      <code style="font-family:var(--font-mono);font-size:0.9em;color:var(--gold);">?width=&amp;height=</code> in millimeters.
+    </p>
+
+    <h3>URL rendering</h3>
+    <p>
+      <code style="font-family:var(--font-mono);font-size:0.9em;color:var(--gold);">wkhtmltopdf https://example.com output.pdf</code>
+      maps directly to
+      <code style="font-family:var(--font-mono);font-size:0.9em;color:var(--gold);">{ "url": "https://example.com" }</code>
+      in the request body, or you can use the <code style="font-family:var(--font-mono);font-size:0.9em;color:var(--gold);">?url=</code>
+      query parameter for GET requests. The key difference: pdfsnap's Chromium will actually execute
+      JavaScript and wait for the page to reach a network-idle state before capturing the PDF, so
+      JS-rendered content will be present in the output.
+    </p>
+
+    <h3>Margin defaults</h3>
+    <p>
+      wkhtmltopdf defaults to 10mm margins. pdfsnap inherits Chromium's default, which is roughly
+      equivalent. If your documents have precise margin requirements, use
+      <code style="font-family:var(--font-mono);font-size:0.9em;color:var(--gold);">@page { margin: 15mm; }</code>
+      in your CSS rather than relying on API parameters.
+    </p>
+
+    <div class="callout">
+      <div class="callout-label">About @sparticuz/chromium</div>
+      <p>
+        pdfsnap uses <strong>@sparticuz/chromium</strong>&mdash;the same Chromium build that powers
+        PDF generation inside AWS Lambda and Vercel Functions at scale. It is a stripped-down, Lambda-optimized
+        Chromium binary maintained specifically for serverless runtimes. Real browser. Real rendering.
+        No binary to manage on your end.
+      </p>
+    </div>
+
+
+    <hr class="divider" />
+
+  <!-- RELATED POSTS -->
+  <div style="margin: 56px 0 0; padding: 32px; background: #10101E; border: 1px solid #26263A; border-radius: 14px;">
+    <h3 style="font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; color: #EEEEF5; margin-bottom: 20px;">Related articles</h3>
+    <ul style="list-style: none; margin: 0; padding: 0;">
+      <li style="margin-bottom: 12px;"><a href="./html-to-pdf-nodejs.html" style="color: #00D2FF; text-decoration: underline; text-underline-offset: 3px; font-size: 15px;">HTML to PDF in Node.js</a> <span style="color: #5A5A72; font-size: 13px; margin-left: 8px;">&mdash; Puppeteer vs PDFKit vs REST API comparison with full code</span></li>
+      <li style="margin-bottom: 12px;"><a href="./html-to-pdf-python.html" style="color: #00D2FF; text-decoration: underline; text-underline-offset: 3px; font-size: 15px;">HTML to PDF in Python</a> <span style="color: #5A5A72; font-size: 13px; margin-left: 8px;">&mdash; WeasyPrint vs Playwright vs pdfsnap REST API</span></li>
+      <li style="margin-bottom: 12px;"><a href="./django-html-to-pdf.html" style="color: #00D2FF; text-decoration: underline; text-underline-offset: 3px; font-size: 15px;">HTML to PDF in Django</a> <span style="color: #5A5A72; font-size: 13px; margin-left: 8px;">&mdash; View-based PDF generation, download headers, CI testing</span></li>
+      <li style="margin-bottom: 12px;"><a href="./generate-pdf-invoice-nodejs.html" style="color: #00D2FF; text-decoration: underline; text-underline-offset: 3px; font-size: 15px;">Generating PDF Invoices in Node.js</a> <span style="color: #5A5A72; font-size: 13px; margin-left: 8px;">&mdash; HTML invoice template, Puppeteer vs REST, email delivery</span></li>
+    </ul>
+  </div>
+
+    <!-- CTA -->
+    <div class="cta-box">
+      <div class="cta-eyebrow">Ready to migrate?</div>
+      <div class="cta-title">Migrate from wkhtmltopdf in an afternoon</div>
+      <p class="cta-sub">
+        One API endpoint, pay-per-render pricing, and a free tier to test your existing templates.
+        No infrastructure. No binary dependencies. No Snyk warnings.
+      </p>
+      <a href="/api.html" class="cta-btn">Read the API docs &rarr;</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <p>
+      &copy; 2026 pdfsnap &mdash;
+      <a href="/index.html">Home</a> &middot;
+      <a href="/api.html">API Docs</a> &middot;
+      <a href="mailto:hello@pdfsnap.dev">hello@pdfsnap.dev</a>
+    </p>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API Reference — pdfsnap</title>
+  <meta name="description" content="pdfsnap API reference. Convert HTML or URLs to PDFs via REST API. Chromium-rendered." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;0,9..144,900;1,9..144,700&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #060402;
+      --bg-surface:  #0C0905;
+      --bg-card:     #110E07;
+      --border:      #1E1A10;
+      --border-hi:   #2C2718;
+      --amber:       #FF7A1A;
+      --amber-dim:   rgba(255, 122, 26, 0.10);
+      --amber-glow:  rgba(255, 122, 26, 0.20);
+      --text-hi:     #F5F0E8;
+      --text-lo:     #A09080;
+      --text-xlo:    #585040;
+      --red:         #FF5555;
+      --red-dim:     rgba(255, 85, 85, 0.10);
+      --green:       #4CAF73;
+      --green-dim:   rgba(76, 175, 115, 0.10);
+      --font-display: 'Fraunces', serif;
+      --font-body:    'DM Sans', sans-serif;
+      --font-mono:    'JetBrains Mono', monospace;
+      --radius:       8px;
+      --radius-lg:    12px;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text-hi);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.65;
+      min-height: 100vh;
+    }
+
+    /* ── Layout ── */
+    .layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border);
+      padding: 24px 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 20px 20px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+      text-decoration: none;
+    }
+
+    .logo-mark {
+      width: 28px;
+      height: 28px;
+      background: var(--amber);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 12px;
+      font-weight: 700;
+      color: #060402;
+      font-style: italic;
+      flex-shrink: 0;
+    }
+
+    .logo-name {
+      font-family: var(--font-display);
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-hi);
+    }
+
+    .logo-name em { color: var(--amber); font-style: italic; }
+
+    .logo-badge {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      padding: 2px 6px;
+      background: var(--amber-dim);
+      border: 1px solid rgba(255,122,26,0.2);
+      border-radius: 4px;
+      color: var(--amber);
+      letter-spacing: 0.3px;
+    }
+
+    .nav-section {
+      padding: 0 12px;
+      margin-bottom: 24px;
+    }
+
+    .nav-section-title {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--text-xlo);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 0 8px;
+      margin-bottom: 4px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 8px;
+      border-radius: 6px;
+      font-size: 13px;
+      color: var(--text-lo);
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+
+    .nav-link:hover {
+      color: var(--text-hi);
+      background: rgba(255,255,255,0.04);
+    }
+
+    .nav-link.active {
+      color: var(--amber);
+      background: var(--amber-dim);
+    }
+
+    .method-badge {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+      flex-shrink: 0;
+    }
+
+    .method-post { background: rgba(76,175,115,0.15); color: var(--green); }
+    .method-get  { background: rgba(121,192,255,0.12); color: #79C0FF; }
+
+    .sidebar-footer {
+      padding: 16px 20px 0;
+      border-top: 1px solid var(--border);
+      margin-top: auto;
+    }
+
+    .other-apis-label {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--text-xlo);
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .other-api-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 0;
+      font-size: 12px;
+      color: var(--text-lo);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    .other-api-link:hover { color: var(--text-hi); }
+
+    .other-api-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ── Main content ── */
+    main {
+      padding: 48px 56px;
+      max-width: 860px;
+    }
+
+    h1 {
+      font-family: var(--font-display);
+      font-size: 36px;
+      font-weight: 900;
+      letter-spacing: -1px;
+      margin-bottom: 12px;
+      line-height: 1.1;
+      color: var(--text-hi);
+    }
+
+    h1 em { color: var(--amber); font-style: italic; }
+
+    .page-subtitle {
+      font-size: 16px;
+      color: var(--text-lo);
+      margin-bottom: 40px;
+      line-height: 1.6;
+    }
+
+    h2 {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: var(--text-hi);
+      margin: 52px 0 20px;
+      padding-top: 52px;
+      border-top: 1px solid var(--border);
+    }
+
+    h2:first-of-type { margin-top: 0; padding-top: 0; border-top: none; }
+
+    h3 {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-hi);
+      margin: 28px 0 12px;
+    }
+
+    p {
+      color: var(--text-lo);
+      margin-bottom: 16px;
+      line-height: 1.7;
+    }
+
+    a { color: var(--amber); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    code {
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: var(--amber);
+    }
+
+    pre {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: auto;
+      margin: 20px 0;
+    }
+
+    pre code {
+      display: block;
+      padding: 20px 24px;
+      font-size: 13px;
+      line-height: 1.8;
+      background: none;
+      border: none;
+      color: var(--text-hi);
+    }
+
+    /* code token colors */
+    .key  { color: #79C0FF; }
+    .str  { color: #A8CC8C; }
+    .num  { color: var(--amber); }
+    .bool { color: #F78166; }
+    .cmt  { color: var(--text-xlo); font-style: italic; }
+    .url  { color: #A5D6FF; }
+    .flag { color: var(--amber); }
+
+    /* ── Endpoint card ── */
+    .endpoint-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin: 24px 0;
+    }
+
+    .endpoint-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(0,0,0,0.2);
+    }
+
+    .method-pill {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      padding: 4px 10px;
+      border-radius: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    .method-pill.post { background: var(--green-dim); color: var(--green); border: 1px solid rgba(76,175,115,0.2); }
+    .method-pill.get  { background: rgba(121,192,255,0.08); color: #79C0FF; border: 1px solid rgba(121,192,255,0.2); }
+
+    .endpoint-path {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      color: var(--text-hi);
+    }
+
+    .endpoint-desc {
+      font-size: 13px;
+      color: var(--text-xlo);
+      margin-left: auto;
+    }
+
+    .endpoint-body {
+      padding: 20px 24px;
+    }
+
+    /* ── Param table ── */
+    .param-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin: 16px 0;
+    }
+
+    .param-table th {
+      text-align: left;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-xlo);
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(0,0,0,0.1);
+    }
+
+    .param-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-lo);
+      vertical-align: top;
+    }
+
+    .param-table tr:last-child td { border-bottom: none; }
+
+    .param-table td:first-child {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-hi);
+      white-space: nowrap;
+    }
+
+    .param-table td:nth-child(2) {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: #79C0FF;
+      white-space: nowrap;
+    }
+
+    .required-badge {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      padding: 2px 6px;
+      background: rgba(255,122,26,0.12);
+      border: 1px solid rgba(255,122,26,0.25);
+      border-radius: 3px;
+      color: var(--amber);
+      letter-spacing: 0.3px;
+      margin-left: 6px;
+    }
+
+    .optional-badge {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      padding: 2px 6px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      color: var(--text-xlo);
+      margin-left: 6px;
+    }
+
+    /* ── Response headers ── */
+    .resp-header-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin: 16px 0;
+    }
+
+    .resp-header-table th {
+      text-align: left;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-xlo);
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .resp-header-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-lo);
+      vertical-align: top;
+    }
+
+    .resp-header-table tr:last-child td { border-bottom: none; }
+
+    .resp-header-table td:first-child {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--amber);
+    }
+
+    /* ── Status codes ── */
+    .status-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin: 16px 0;
+    }
+
+    .status-table th {
+      text-align: left;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-xlo);
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(0,0,0,0.1);
+    }
+
+    .status-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-lo);
+      vertical-align: top;
+    }
+
+    .status-table tr:last-child td { border-bottom: none; }
+
+    .status {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    .status-2 { background: var(--green-dim); color: var(--green); }
+    .status-4 { background: rgba(255,122,26,0.12); color: var(--amber); }
+    .status-5 { background: var(--red-dim); color: var(--red); }
+
+    /* ── Info box ── */
+    .info-box {
+      display: flex;
+      gap: 12px;
+      padding: 14px 18px;
+      background: var(--amber-dim);
+      border: 1px solid rgba(255,122,26,0.2);
+      border-radius: var(--radius);
+      margin: 20px 0;
+      font-size: 13px;
+      color: var(--text-lo);
+      line-height: 1.6;
+    }
+
+    .info-icon { flex-shrink: 0; font-size: 14px; margin-top: 1px; }
+
+    /* ── Tier grid ── */
+    .tier-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin: 24px 0;
+    }
+
+    .tier-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px 18px;
+    }
+
+    .tier-card h4 {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-xlo);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .tier-card .price {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 900;
+      color: var(--text-hi);
+      letter-spacing: -1px;
+      margin-bottom: 6px;
+    }
+
+    .tier-card p { font-size: 12px; color: var(--text-xlo); margin: 0; }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      main { padding: 32px 24px; }
+    }
+
+    @media (max-width: 600px) {
+      .tier-grid { grid-template-columns: 1fr; }
+      main { padding: 24px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="layout">
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <a href="index.html" class="sidebar-logo">
+      <div class="logo-mark">p</div>
+      <div>
+        <div class="logo-name">pdf<em>snap</em></div>
+      </div>
+      <span class="logo-badge">API</span>
+    </a>
+
+    <nav>
+      <div class="nav-section">
+        <div class="nav-section-title">Overview</div>
+        <a href="#overview" class="nav-link active">Introduction</a>
+        <a href="#auth" class="nav-link">Authentication</a>
+        <a href="#base-url" class="nav-link">Base URL</a>
+        <a href="#limits" class="nav-link">Rate Limits</a>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Endpoints</div>
+        <a href="#post-pdf" class="nav-link">
+          <span class="method-badge method-post">POST</span>
+          /api/pdf
+        </a>
+        <a href="#get-usage" class="nav-link">
+          <span class="method-badge method-get">GET</span>
+          /api/usage
+        </a>
+        <a href="#get-health" class="nav-link">
+          <span class="method-badge method-get">GET</span>
+          /api/health
+        </a>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Reference</div>
+        <a href="#formats" class="nav-link">Page Formats</a>
+        <a href="#errors" class="nav-link">Error Codes</a>
+        <a href="#pricing" class="nav-link">Pricing</a>
+      </div>
+    </nav>
+
+    <div style="flex:1"></div>
+    <div class="sidebar-footer">
+      <div class="other-apis-label">Also from Auto Company</div>
+      <a href="https://snapog.dev/api.html" class="other-api-link">
+        <div class="other-api-dot" style="background:#C8FF00"></div>
+        SnapOG API
+      </a>
+      <a href="https://shot.dev/api.html" class="other-api-link">
+        <div class="other-api-dot" style="background:#00E5FF"></div>
+        shot.dev API
+      </a>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <main>
+    <!-- Overview -->
+    <h1 id="overview">pdfsnap <em>API</em></h1>
+    <p class="page-subtitle">
+      Convert any URL or raw HTML to a pixel-perfect PDF via a single POST request.
+      Powered by Chromium. No servers to manage.
+    </p>
+
+    <h2 id="auth">Authentication</h2>
+    <p>
+      All requests require a Bearer token in the <code>Authorization</code> header.
+      API keys start with <code>sk_</code> for secret keys.
+    </p>
+    <pre><code><span class="cmt"># Pass your API key as a Bearer token</span>
+Authorization: Bearer sk_your_api_key_here</code></pre>
+
+    <div class="info-box">
+      <span class="info-icon">⚠</span>
+      <span>Keep your API key secret. Never expose it in client-side code or public repositories. If compromised, generate a new key immediately.</span>
+    </div>
+
+    <h2 id="base-url">Base URL</h2>
+    <p>All API endpoints are served from:</p>
+    <pre><code>https://pdfsnap.dev</code></pre>
+
+    <h2 id="limits">Rate Limits</h2>
+    <p>
+      Limits are per API key, per calendar month (UTC). Limits reset on the 1st of each month.
+      The current usage tier is returned in every response as <code>x-pdfsnap-remaining</code>.
+    </p>
+
+    <table class="param-table">
+      <thead>
+        <tr>
+          <th>Tier</th>
+          <th>PDFs / month</th>
+          <th>Max body size</th>
+          <th>HTML input</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Free</td>
+          <td>25</td>
+          <td>500 KB</td>
+          <td>URL only</td>
+        </tr>
+        <tr>
+          <td>Pro</td>
+          <td>500</td>
+          <td>2 MB</td>
+          <td>Yes</td>
+        </tr>
+        <tr>
+          <td>Business</td>
+          <td>5,000</td>
+          <td>2 MB</td>
+          <td>Yes</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- POST /api/pdf -->
+    <h2 id="post-pdf">POST /api/pdf</h2>
+    <p>Convert a URL or raw HTML string to a PDF document. Returns a binary PDF stream.</p>
+
+    <div class="endpoint-card">
+      <div class="endpoint-header">
+        <span class="method-pill post">POST</span>
+        <span class="endpoint-path">/api/pdf</span>
+        <span class="endpoint-desc">Convert to PDF</span>
+      </div>
+      <div class="endpoint-body">
+        <p>Request body must be <code>application/json</code>. Either <code>url</code> or <code>html</code> is required. On success, returns <code>application/pdf</code> binary.</p>
+      </div>
+    </div>
+
+    <h3>Request body parameters</h3>
+    <table class="param-table">
+      <thead>
+        <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>url <span class="required-badge">required*</span></td>
+          <td>string</td>
+          <td>Full URL to render. Must be publicly accessible. Available on all tiers.</td>
+        </tr>
+        <tr>
+          <td>html <span class="required-badge">Pro+</span></td>
+          <td>string</td>
+          <td>Raw HTML string to render. Overrides <code>url</code> if both provided. Max 2 MB. Pro and Business tiers only.</td>
+        </tr>
+        <tr>
+          <td>format <span class="optional-badge">optional</span></td>
+          <td>string</td>
+          <td>Page format: <code>"A4"</code> (default), <code>"Letter"</code>, <code>"A3"</code>, <code>"Legal"</code>.</td>
+        </tr>
+        <tr>
+          <td>orientation <span class="optional-badge">optional</span></td>
+          <td>string</td>
+          <td><code>"portrait"</code> (default) or <code>"landscape"</code>.</td>
+        </tr>
+        <tr>
+          <td>margin <span class="optional-badge">optional</span></td>
+          <td>object</td>
+          <td>CSS-style margin object: <code>{ "top": "20mm", "right": "15mm", "bottom": "20mm", "left": "15mm" }</code>. Defaults to 10mm all sides.</td>
+        </tr>
+        <tr>
+          <td>scale <span class="optional-badge">optional</span></td>
+          <td>number</td>
+          <td>Page scale factor from 0.1 to 2.0. Default: <code>1.0</code>.</td>
+        </tr>
+        <tr>
+          <td>background <span class="optional-badge">optional</span></td>
+          <td>boolean</td>
+          <td>Print CSS background colors and images. Default: <code>true</code>.</td>
+        </tr>
+        <tr>
+          <td>waitFor <span class="optional-badge">optional</span></td>
+          <td>string</td>
+          <td>Wait strategy before capturing: <code>"load"</code> (default), <code>"networkidle"</code>, or a CSS selector to wait for.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Example request</h3>
+    <pre><code><span class="flag">curl</span> -X POST https://pdfsnap.dev/api/pdf \
+  -H <span class="str">"Authorization: Bearer sk_your_key"</span> \
+  -H <span class="str">"Content-Type: application/json"</span> \
+  -d <span class="str">'{"url":"https://example.com","format":"A4","orientation":"portrait"}'</span> \
+  --output example.pdf</code></pre>
+
+    <h3>HTML input example (Pro+)</h3>
+    <pre><code><span class="flag">curl</span> -X POST https://pdfsnap.dev/api/pdf \
+  -H <span class="str">"Authorization: Bearer sk_your_key"</span> \
+  -H <span class="str">"Content-Type: application/json"</span> \
+  -d <span class="str">'{"html":"&lt;h1&gt;Invoice #1042&lt;/h1&gt;&lt;p&gt;Due: Dec 1&lt;/p&gt;","format":"Letter"}'</span> \
+  --output invoice.pdf</code></pre>
+
+    <h3>Node.js example</h3>
+    <pre><code><span class="cmt">// Using native fetch (Node 18+)</span>
+const res = await fetch(<span class="str">'https://pdfsnap.dev/api/pdf'</span>, {
+  method: <span class="str">'POST'</span>,
+  headers: {
+    <span class="key">'Authorization'</span>: <span class="str">`Bearer ${process.env.PDFSNAP_KEY}`</span>,
+    <span class="key">'Content-Type'</span>: <span class="str">'application/json'</span>,
+  },
+  body: JSON.stringify({
+    <span class="key">url</span>: <span class="str">'https://yourapp.com/invoice/1042'</span>,
+    <span class="key">format</span>: <span class="str">'A4'</span>,
+    <span class="key">waitFor</span>: <span class="str">'networkidle'</span>,
+  }),
+});
+
+<span class="cmt">// Stream to file</span>
+const buffer = await res.arrayBuffer();
+await fs.writeFile(<span class="str">'invoice.pdf'</span>, Buffer.from(buffer));</code></pre>
+
+    <h3>Python example</h3>
+    <pre><code>import requests, os
+
+resp = requests.post(
+    <span class="str">"https://pdfsnap.dev/api/pdf"</span>,
+    headers={
+        <span class="str">"Authorization"</span>: f<span class="str">"Bearer {os.environ['PDFSNAP_KEY']}"</span>,
+        <span class="str">"Content-Type"</span>: <span class="str">"application/json"</span>,
+    },
+    json={<span class="str">"url"</span>: <span class="str">"https://example.com"</span>, <span class="str">"format"</span>: <span class="str">"A4"</span>},
+)
+
+with open(<span class="str">"output.pdf"</span>, <span class="str">"wb"</span>) as f:
+    f.write(resp.content)</code></pre>
+
+    <h3>Response headers</h3>
+    <table class="resp-header-table">
+      <thead>
+        <tr><th>Header</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>x-pdfsnap-pages</td>
+          <td>Number of pages in the generated PDF.</td>
+        </tr>
+        <tr>
+          <td>x-pdfsnap-ms</td>
+          <td>Server-side render time in milliseconds.</td>
+        </tr>
+        <tr>
+          <td>x-pdfsnap-remaining</td>
+          <td>Conversions remaining this month on your tier.</td>
+        </tr>
+        <tr>
+          <td>Content-Type</td>
+          <td><code>application/pdf</code></td>
+        </tr>
+        <tr>
+          <td>Content-Disposition</td>
+          <td><code>attachment; filename="output.pdf"</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- GET /api/usage -->
+    <h2 id="get-usage">GET /api/usage</h2>
+    <p>Returns current usage stats for the authenticated API key.</p>
+
+    <div class="endpoint-card">
+      <div class="endpoint-header">
+        <span class="method-pill get">GET</span>
+        <span class="endpoint-path">/api/usage</span>
+        <span class="endpoint-desc">Query usage</span>
+      </div>
+      <div class="endpoint-body">
+        <p>No request body needed. Returns JSON usage object.</p>
+      </div>
+    </div>
+
+    <h3>Example request</h3>
+    <pre><code><span class="flag">curl</span> https://pdfsnap.dev/api/usage \
+  -H <span class="str">"Authorization: Bearer sk_your_key"</span></code></pre>
+
+    <h3>Example response</h3>
+    <pre><code>{
+  <span class="key">"tier"</span>: <span class="str">"pro"</span>,
+  <span class="key">"used"</span>: <span class="num">47</span>,
+  <span class="key">"limit"</span>: <span class="num">500</span>,
+  <span class="key">"remaining"</span>: <span class="num">453</span>,
+  <span class="key">"reset_at"</span>: <span class="str">"2026-10-01T00:00:00Z"</span>
+}</code></pre>
+
+    <!-- GET /api/health -->
+    <h2 id="get-health">GET /api/health</h2>
+    <p>Returns the operational status of the API. Safe to poll from uptime monitors — no authentication required.</p>
+
+    <div class="endpoint-card">
+      <div class="endpoint-header">
+        <span class="method-pill get">GET</span>
+        <span class="endpoint-path">/api/health</span>
+        <span class="endpoint-desc">Health check</span>
+      </div>
+      <div class="endpoint-body">
+        <p>No authentication required. Returns <code>200</code> when all systems are operational, <code>503</code> when degraded.</p>
+      </div>
+    </div>
+
+    <h3>200 OK response</h3>
+    <pre><code>{
+  <span class="key">"status"</span>: <span class="str">"ok"</span>,
+  <span class="key">"ts"</span>: <span class="str">"2026-09-07T12:00:00.000Z"</span>,
+  <span class="key">"checks"</span>: {
+    <span class="key">"chromium"</span>: <span class="str">"ok"</span>,
+    <span class="key">"stripe"</span>: <span class="str">"ok"</span>,
+    <span class="key">"kv"</span>: <span class="str">"ok"</span>
+  }
+}</code></pre>
+
+    <!-- Page Formats -->
+    <h2 id="formats">Page Formats</h2>
+    <p>The <code>format</code> parameter accepts the following values:</p>
+
+    <table class="param-table">
+      <thead>
+        <tr><th>Value</th><th>Dimensions</th><th>Common use</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>A4</td><td>210 × 297 mm</td><td>International standard, default</td></tr>
+        <tr><td>Letter</td><td>216 × 279 mm</td><td>US standard</td></tr>
+        <tr><td>A3</td><td>297 × 420 mm</td><td>Wide reports, spreadsheets</td></tr>
+        <tr><td>Legal</td><td>216 × 356 mm</td><td>US legal documents</td></tr>
+      </tbody>
+    </table>
+
+    <p>
+      Pair <code>format</code> with <code>orientation: "landscape"</code> to flip dimensions.
+      For example, A4 landscape = 297 × 210 mm.
+    </p>
+
+    <!-- Errors -->
+    <h2 id="errors">Error Codes</h2>
+
+    <table class="status-table">
+      <thead>
+        <tr><th>Status</th><th>Code</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="status status-2">200</span></td>
+          <td>—</td>
+          <td>PDF generated successfully.</td>
+        </tr>
+        <tr>
+          <td><span class="status status-4">400</span></td>
+          <td>invalid_input</td>
+          <td>Missing <code>url</code> or <code>html</code>, or malformed JSON body.</td>
+        </tr>
+        <tr>
+          <td><span class="status status-4">401</span></td>
+          <td>invalid_key</td>
+          <td>Bearer token is missing, malformed, or expired.</td>
+        </tr>
+        <tr>
+          <td><span class="status status-4">403</span></td>
+          <td>tier_restricted</td>
+          <td>Feature requires a higher tier (e.g. HTML input on Free tier).</td>
+        </tr>
+        <tr>
+          <td><span class="status status-4">413</span></td>
+          <td>body_too_large</td>
+          <td>HTML body exceeds allowed size for your tier (500KB free, 2MB paid).</td>
+        </tr>
+        <tr>
+          <td><span class="status status-4">429</span></td>
+          <td>rate_limited</td>
+          <td>Monthly quota exceeded. Resets 1st of next month UTC.</td>
+        </tr>
+        <tr>
+          <td><span class="status status-5">500</span></td>
+          <td>render_error</td>
+          <td>Chromium failed to render. Retry with backoff. Check URL accessibility.</td>
+        </tr>
+        <tr>
+          <td><span class="status status-5">504</span></td>
+          <td>timeout</td>
+          <td>Page took longer than 30s to load. Try a shorter waitFor strategy.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Error body format</h3>
+    <pre><code>{
+  <span class="key">"error"</span>: <span class="str">"HTML input requires a Pro or Business plan."</span>,
+  <span class="key">"code"</span>: <span class="str">"tier_restricted"</span>,
+  <span class="key">"upgrade_url"</span>: <span class="str">"https://pdfsnap.dev/#pricing"</span>
+}</code></pre>
+
+    <!-- Pricing -->
+    <h2 id="pricing">Pricing</h2>
+    <div class="tier-grid">
+      <div class="tier-card">
+        <h4>Free</h4>
+        <div class="price">$0</div>
+        <p>25 PDFs/mo · URL-only · Watermarked · No card needed</p>
+      </div>
+      <div class="tier-card" style="border-color: var(--amber);">
+        <h4>Pro</h4>
+        <div class="price">$9<small style="font-size:14px;color:var(--text-lo)">/mo</small></div>
+        <p>500 PDFs/mo · HTML input · No watermark · Email support</p>
+      </div>
+      <div class="tier-card">
+        <h4>Business</h4>
+        <div class="price">$49<small style="font-size:14px;color:var(--text-lo)">/mo</small></div>
+        <p>5,000 PDFs/mo · HTML input · Priority support · SLA</p>
+      </div>
+    </div>
+
+    <p style="margin-top:32px;font-size:13px;color:var(--text-xlo);">
+      Questions? <a href="https://github.com/Valere3162/pdfsnap/issues">Open an issue on GitHub</a>
+      &middot; <a href="index.html">Back to homepage</a>
+      &middot; Also check: <a href="https://snapog.dev/api.html">SnapOG API</a>, <a href="https://shot.dev/api.html">shot.dev API</a>
+    </p>
+  </main>
+</div>
+
+</body>
+</html>

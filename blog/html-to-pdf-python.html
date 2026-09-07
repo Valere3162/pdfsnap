@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HTML to PDF in Python: WeasyPrint vs ReportLab vs REST API (2026) | pdfsnap Blog</title>
+  <meta name="description" content="Three ways to convert HTML to PDF in Python: WeasyPrint, ReportLab, and a REST API. Comparison of install pain, CSS support, and serverless readiness." />
+  <meta name="keywords" content="html to pdf python, python html to pdf, html to pdf api python, weasyprint alternative, weasyprint vs reportlab, python pdf generation, reportlab html pdf, convert html pdf python" />
+  <meta property="og:title" content="HTML to PDF in Python: WeasyPrint vs ReportLab vs REST API (2026)" />
+  <meta property="og:description" content="Three ways to convert HTML to PDF in Python: WeasyPrint, ReportLab, and a REST API. Install pain, CSS support, serverless readiness, output quality." />
+  <meta property="og:type" content="article" />
+  <meta property="og:image" content="https://api.snapog.dev/og?title=HTML+to+PDF+in+Python&subtitle=pdfsnap+Blog&theme=dark" />
+  <meta property="article:published_time" content="2026-09-07" />
+  <meta property="article:author" content="pdfsnap" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="HTML to PDF in Python: WeasyPrint vs ReportLab vs REST API" />
+  <meta name="twitter:description" content="Honest comparison — WeasyPrint install pain, ReportLab limitations, and when a REST API is the boring-but-correct choice." />
+  <meta name="twitter:image" content="https://api.snapog.dev/og?title=HTML+to+PDF+in+Python&subtitle=pdfsnap+Blog&theme=dark" />
+  <link rel="canonical" href="https://pdfsnap.dev/blog/html-to-pdf-python" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;0,9..144,900;1,9..144,700&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "HTML to PDF in Python: WeasyPrint vs ReportLab vs REST API (2026)",
+    "description": "Three ways to convert HTML to PDF in Python in 2026. Honest comparison of install pain, CSS support, serverless readiness, and output quality.",
+    "author": { "@type": "Organization", "name": "pdfsnap" },
+    "publisher": { "@type": "Organization", "name": "pdfsnap", "url": "https://pdfsnap.dev" },
+    "datePublished": "2026-09-07",
+    "dateModified": "2026-09-07",
+    "url": "https://pdfsnap.dev/blog/html-to-pdf-python",
+    "keywords": ["html to pdf python", "python html to pdf", "weasyprint alternative", "weasyprint vs reportlab", "html to pdf api python"]
+  }
+  </script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #060402;
+      --bg-surface:   #0C0905;
+      --bg-card:      #110E07;
+      --border:       #1E1A10;
+      --border-hi:    #2C2718;
+      --amber:        #FF7A1A;
+      --amber-dim:    rgba(255,122,26,0.10);
+      --amber-glow:   rgba(255,122,26,0.22);
+      --gold:         #FFB800;
+      --gold-dim:     rgba(255,184,0,0.10);
+      --text-hi:      #F5F0E8;
+      --text-lo:      #A09080;
+      --text-xlo:     #585040;
+      --font-display: 'Fraunces', serif;
+      --font-body:    'DM Sans', sans-serif;
+      --font-mono:    'JetBrains Mono', monospace;
+      --radius:       10px;
+      --radius-lg:    18px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text-hi);
+      font-family: var(--font-body);
+      font-size: 17px;
+      line-height: 1.78;
+      min-height: 100vh;
+    }
+
+    /* NAV */
+    nav.topnav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(6,4,2,0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
+      max-width: 900px; margin: 0 auto;
+      padding: 0 24px; height: 56px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .nav-logo {
+      font-family: var(--font-display); font-weight: 700; font-size: 18px;
+      color: var(--text-hi); text-decoration: none;
+    }
+    .nav-logo em { color: var(--amber); font-style: normal; }
+    .nav-sep { color: #2A2010; font-size: 20px; user-select: none; }
+    .nav-link { color: var(--text-lo); font-size: 14px; font-weight: 500; text-decoration: none; transition: color 0.15s; }
+    .nav-link:hover { color: var(--text-hi); }
+    .nav-spacer { flex: 1; }
+    .nav-cta {
+      background: var(--amber); color: #0A0602;
+      font-family: var(--font-body); font-weight: 700; font-size: 13px;
+      padding: 7px 16px; border-radius: 6px; text-decoration: none;
+      transition: opacity 0.15s;
+    }
+    .nav-cta:hover { opacity: 0.85; }
+
+    /* ARTICLE LAYOUT */
+    .article-wrap {
+      max-width: 720px; margin: 0 auto;
+      padding: 56px 24px 120px;
+    }
+
+    /* BREADCRUMB */
+    .breadcrumb {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 32px; font-size: 13px; color: var(--text-xlo);
+    }
+    .breadcrumb a { color: var(--text-lo); text-decoration: none; transition: color 0.15s; }
+    .breadcrumb a:hover { color: var(--text-hi); }
+
+    /* HEADER */
+    .post-label {
+      display: inline-block;
+      background: var(--amber-dim); color: var(--amber);
+      font-family: var(--font-mono); font-size: 10px; font-weight: 500;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 4px;
+      border: 1px solid rgba(255,122,26,0.25);
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-family: var(--font-display); font-weight: 900;
+      font-size: clamp(28px, 5vw, 44px);
+      line-height: 1.12; letter-spacing: -1.5px;
+      color: var(--text-hi); margin-bottom: 20px;
+    }
+
+    .post-meta {
+      display: flex; align-items: center; gap: 16px;
+      font-size: 13px; color: var(--text-xlo);
+      font-family: var(--font-mono);
+      padding-bottom: 36px; margin-bottom: 40px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* BODY TEXT */
+    .prose p { margin-bottom: 22px; color: var(--text-lo); }
+    .prose p:first-child { color: var(--text-hi); font-size: 18px; line-height: 1.7; }
+
+    .prose h2 {
+      font-family: var(--font-display); font-weight: 700;
+      font-size: clamp(22px, 3.5vw, 28px);
+      line-height: 1.2; letter-spacing: -0.5px;
+      color: var(--text-hi);
+      margin: 48px 0 16px;
+    }
+    .prose h3 {
+      font-family: var(--font-display); font-weight: 700;
+      font-size: 19px; color: var(--text-hi);
+      margin: 32px 0 12px;
+    }
+
+    .prose ul, .prose ol {
+      margin: 0 0 22px 24px; color: var(--text-lo);
+    }
+    .prose li { margin-bottom: 8px; }
+    .prose li::marker { color: var(--amber); }
+
+    .prose a { color: var(--amber); text-decoration: underline; text-underline-offset: 3px; transition: opacity 0.15s; }
+    .prose a:hover { opacity: 0.8; }
+
+    .prose strong { color: var(--text-hi); font-weight: 600; }
+
+    /* CODE BLOCKS */
+    .code-block {
+      background: var(--bg-card);
+      border: 1px solid var(--border-hi);
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      margin: 4px 0 28px;
+      overflow-x: auto;
+    }
+    .code-block pre {
+      font-family: var(--font-mono); font-size: 13.5px; line-height: 1.65;
+      color: #D4C8B0; white-space: pre;
+    }
+    .code-filename {
+      font-family: var(--font-mono); font-size: 11px; font-weight: 500;
+      color: var(--amber); letter-spacing: 0.05em;
+      margin-bottom: 10px;
+    }
+    code {
+      background: var(--amber-dim); color: var(--amber);
+      font-family: var(--font-mono); font-size: 0.87em;
+      padding: 1px 6px; border-radius: 4px;
+    }
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+
+    /* VERDICT / CALLOUT BOXES */
+    .verdict-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-hi);
+      border-left: 3px solid var(--amber);
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      margin: 8px 0 28px;
+    }
+    .verdict-box .verdict-label {
+      font-family: var(--font-mono); font-size: 10px; font-weight: 500;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--amber); margin-bottom: 8px;
+    }
+    .verdict-box p { color: var(--text-lo); margin: 0; font-size: 15px; }
+
+    .warn-box {
+      background: rgba(255,184,0,0.06);
+      border: 1px solid rgba(255,184,0,0.2);
+      border-left: 3px solid var(--gold);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin: 0 0 28px;
+      color: var(--text-lo); font-size: 15px;
+    }
+    .warn-box strong { color: var(--gold); }
+
+    /* COMPARISON TABLE */
+    .comparison {
+      width: 100%; border-collapse: collapse;
+      margin: 8px 0 32px; font-size: 14px;
+    }
+    .comparison th {
+      background: var(--bg-card); color: var(--text-lo);
+      font-family: var(--font-mono); font-size: 11px;
+      font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 10px 14px; border: 1px solid var(--border);
+      text-align: left;
+    }
+    .comparison td {
+      padding: 11px 14px; border: 1px solid var(--border);
+      color: var(--text-lo); vertical-align: top;
+    }
+    .comparison tr:hover td { background: var(--bg-card); }
+    .green { color: #7FD47F; }
+    .red { color: #E06060; }
+    .amber { color: var(--amber); }
+
+    /* CTA */
+    .cta-box {
+      background: linear-gradient(135deg, var(--amber-glow) 0%, rgba(255,122,26,0.04) 100%);
+      border: 1px solid rgba(255,122,26,0.25);
+      border-radius: var(--radius-lg); padding: 40px 36px;
+      text-align: center; margin-top: 56px;
+    }
+    .cta-box h2 {
+      font-family: var(--font-display); font-weight: 700; font-size: 24px;
+      color: var(--text-hi); margin-bottom: 12px; letter-spacing: -0.4px;
+    }
+    .cta-box p { color: var(--text-lo); margin-bottom: 28px; font-size: 16px; }
+    .cta-btn {
+      display: inline-block; background: var(--amber); color: #0A0602;
+      font-family: var(--font-body); font-weight: 700; font-size: 15px;
+      padding: 14px 32px; border-radius: 8px; text-decoration: none;
+      transition: opacity 0.15s, transform 0.15s;
+    }
+    .cta-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+    .cta-sub { margin-top: 14px; font-size: 13px; color: var(--text-xlo); }
+
+    /* CROSSLINKS */
+    .crosslinks { margin-top: 56px; padding-top: 40px; border-top: 1px solid var(--border); }
+    .crosslinks-label {
+      font-family: var(--font-mono); font-size: 10px; font-weight: 500;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--text-xlo); margin-bottom: 20px;
+    }
+    .crosslinks-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 14px;
+    }
+    .crosslink-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px;
+      text-decoration: none; transition: border-color 0.15s, transform 0.15s;
+      display: block;
+    }
+    .crosslink-card:hover { border-color: var(--amber); transform: translateY(-2px); }
+    .crosslink-tag {
+      font-family: var(--font-mono); font-size: 9px; font-weight: 500;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--amber); margin-bottom: 8px;
+    }
+    .crosslink-title {
+      font-family: var(--font-display); font-weight: 700; font-size: 14px;
+      color: var(--text-hi); line-height: 1.35; margin-bottom: 6px;
+    }
+    .crosslink-desc { font-size: 12px; color: var(--text-lo); line-height: 1.5; }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="topnav">
+  <div class="nav-inner">
+    <a href="../index.html" class="nav-logo">PDF<em>snap</em></a>
+    <span class="nav-sep">/</span>
+    <a href="../index.html" class="nav-link">Home</a>
+    <span class="nav-sep">/</span>
+    <a href="./index.html" class="nav-link">Blog</a>
+    <div class="nav-spacer"></div>
+    <a href="../index.html#pricing" class="nav-cta">Start free &rarr;</a>
+  </div>
+</nav>
+
+<!-- ARTICLE -->
+<main class="article-wrap">
+
+  <!-- BREADCRUMB -->
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="../index.html">Home</a>
+    <span>&rsaquo;</span>
+    <a href="./index.html">Blog</a>
+    <span>&rsaquo;</span>
+    <span>HTML to PDF in Python</span>
+  </nav>
+
+  <div class="post-label">Tutorial &middot; Python</div>
+  <h1>HTML to PDF in Python: WeasyPrint vs ReportLab vs REST API</h1>
+  <div class="post-meta">
+    <span>Sep 2026</span>
+    <span>&middot;</span>
+    <span>9 min read</span>
+    <span>&middot;</span>
+    <span>pdfsnap</span>
+  </div>
+
+  <div class="prose">
+
+    <p>Three libraries come up every time a Python developer needs HTML-to-PDF: WeasyPrint, ReportLab, and the "just call an API" approach. They solve different problems and fail in different ways. This post is the comparison I wish existed before I spent two days debugging Cairo font issues on a Lambda function.</p>
+
+    <h2>Option 1: WeasyPrint</h2>
+
+    <p>WeasyPrint is the most popular pure-Python option for converting HTML+CSS to PDF. It supports modern CSS, flexbox (mostly), and page-break rules. The output quality is genuinely good for documents — invoices, reports, anything print-oriented.</p>
+
+    <h3>Installation</h3>
+
+    <p>Here's where things get painful. WeasyPrint depends on Cairo, Pango, and GDK-PixBuf — C libraries that must be installed at the system level. On a Mac with Homebrew or on a Debian server this is manageable. On AWS Lambda or Google Cloud Functions, it becomes a packaging problem.</p>
+
+    <div class="code-block">
+      <div class="code-filename">terminal</div>
+      <pre># macOS
+brew install weasyprint
+
+# Ubuntu/Debian
+apt-get install -y python3-dev python3-pip libpango-1.0-0 libpangoft2-1.0-0 libcairo2
+
+pip install weasyprint</pre>
+    </div>
+
+    <div class="warn-box">
+      <strong>Lambda warning:</strong> WeasyPrint needs native binaries (Cairo, Pango) that aren't in the Lambda runtime image. You'll need a custom container image or a Lambda layer with ~80MB of compiled libs. Cold-start penalty: 2–4 seconds on first invocation.
+    </div>
+
+    <h3>Basic usage</h3>
+
+    <div class="code-block">
+      <div class="code-filename">generate_pdf.py</div>
+      <pre>from weasyprint import HTML, CSS
+
+html_string = """
+&lt;html&gt;
+&lt;head&gt;
+  &lt;style&gt;
+    body { font-family: Helvetica, sans-serif; margin: 40px; }
+    h1   { color: #1a1a2e; }
+    .invoice-total { font-size: 24px; font-weight: bold; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Invoice #1042&lt;/h1&gt;
+  &lt;p&gt;Due: 2026-10-01&lt;/p&gt;
+  &lt;p class="invoice-total"&gt;Total: $1,200.00&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+"""
+
+# From string
+pdf_bytes = HTML(string=html_string).write_pdf()
+with open("invoice.pdf", "wb") as f:
+    f.write(pdf_bytes)
+
+# From URL (WeasyPrint fetches it)
+pdf_bytes = HTML(url="https://example.com/report").write_pdf()
+
+# With external CSS
+css = CSS(string="@page { size: A4; margin: 20mm; }")
+pdf_bytes = HTML(string=html_string).write_pdf(stylesheets=[css])</pre>
+    </div>
+
+    <h3>What WeasyPrint handles well</h3>
+    <ul>
+      <li>Print CSS (<code>@page</code>, <code>page-break-before</code>, <code>orphans</code>)</li>
+      <li>Most CSS 2.1 and a good subset of CSS 3</li>
+      <li>Flexbox for simple single-axis layouts</li>
+      <li>Custom fonts via <code>@font-face</code> (if font files are available)</li>
+      <li>SVG images embedded inline or as <code>&lt;img&gt;</code> src</li>
+    </ul>
+
+    <h3>Where WeasyPrint breaks</h3>
+    <ul>
+      <li><strong>CSS Grid</strong> — not supported. Grid layouts fall back to block.</li>
+      <li><strong>JavaScript</strong> — WeasyPrint has no JS engine. Dynamic content won't render.</li>
+      <li><strong>Web fonts from CDN</strong> — Google Fonts URLs often fail in restricted environments (Lambda VPC, etc.).</li>
+      <li><strong>Complex backgrounds and shadows</strong> — box-shadow is partially supported; results vary.</li>
+    </ul>
+
+    <div class="verdict-box">
+      <div class="verdict-label">Verdict: WeasyPrint</div>
+      <p>Best for server environments where you can install system dependencies. Good CSS support, solid output quality for document-style PDFs. Bad choice for Lambda/serverless without a custom container. Not suitable for pages that require JavaScript rendering.</p>
+    </div>
+
+    <h2>Option 2: ReportLab</h2>
+
+    <p>ReportLab is the oldest Python PDF library — it's been around since the late 1990s. It's pure Python (no C library dependencies), which makes it easy to install anywhere. The trade-off: it does <strong>not</strong> render HTML directly. Instead you build PDFs programmatically via its Platypus document model, or parse simplified HTML via <code>xhtml2pdf</code>.</p>
+
+    <h3>ReportLab + xhtml2pdf for HTML input</h3>
+
+    <div class="code-block">
+      <div class="code-filename">terminal</div>
+      <pre>pip install reportlab xhtml2pdf</pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-filename">html_to_pdf_reportlab.py</div>
+      <pre>from xhtml2pdf import pisa
+import io
+
+html_string = """
+&lt;html&gt;
+&lt;head&gt;
+  &lt;style&gt;
+    body { font-family: Helvetica; margin: 40px; }
+    h1 { color: #1a1a2e; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Invoice #1042&lt;/h1&gt;
+  &lt;p&gt;Due: 2026-10-01&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+"""
+
+output = io.BytesIO()
+pisa_status = pisa.CreatePDF(html_string, dest=output)
+
+if not pisa_status.err:
+    with open("invoice.pdf", "wb") as f:
+        f.write(output.getvalue())
+else:
+    print("PDF generation failed:", pisa_status.err)</pre>
+    </div>
+
+    <h3>The CSS problem</h3>
+
+    <p>xhtml2pdf implements a subset of CSS 2.1 that is significantly smaller than WeasyPrint's. Flexbox, Grid, custom properties (<code>var()</code>), and most CSS 3 features are unsupported. If you're converting a modern web page, expect layout breakage. If you control the HTML source and keep it simple (tables for layout, inline styles), xhtml2pdf is workable.</p>
+
+    <div class="warn-box">
+      <strong>Heads up:</strong> xhtml2pdf maps <code>font-family</code> to built-in PDF fonts (Helvetica, Times-Roman, Courier). Custom web fonts require embedding font files and registering them explicitly with ReportLab. This works but adds boilerplate.
+    </div>
+
+    <h3>When ReportLab makes sense</h3>
+    <ul>
+      <li>You need zero system dependencies (pure Python, pip-installable anywhere)</li>
+      <li>You're generating data-driven reports with simple tables and charts</li>
+      <li>You control the HTML source and can simplify it for xhtml2pdf compatibility</li>
+      <li>You need fine-grained control over individual PDF elements (graphics, custom layouts)</li>
+    </ul>
+
+    <div class="verdict-box">
+      <div class="verdict-label">Verdict: ReportLab</div>
+      <p>Great for programmatic PDF generation when you control the source data. Poor choice for converting arbitrary or modern-CSS HTML. xhtml2pdf handles simple HTML well but fails on anything beyond CSS 2.1. The upside: zero system dependencies, works on Lambda without containers.</p>
+    </div>
+
+    <h2>Option 3: REST API (pdfsnap)</h2>
+
+    <p>Both WeasyPrint and ReportLab share a fundamental constraint: they run in your process, consuming your memory, with a rendering engine you have to keep updated and debugged. A REST API externalizes the rendering layer entirely — you send HTML, you get back a PDF binary.</p>
+
+    <p>pdfsnap runs a real Chromium instance behind a REST endpoint. This means full CSS 3 support, JavaScript execution, web font loading, and whatever a real browser renders — because it <em>is</em> a real browser.</p>
+
+    <h3>Installation</h3>
+
+    <div class="code-block">
+      <div class="code-filename">terminal</div>
+      <pre>pip install requests  # that's it</pre>
+    </div>
+
+    <h3>Basic usage</h3>
+
+    <div class="code-block">
+      <div class="code-filename">generate_pdf.py</div>
+      <pre>import requests
+
+html_string = """
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;style&gt;
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&amp;display=swap');
+    body { font-family: 'Inter', sans-serif; margin: 40px; background: #fff; }
+    h1   { color: #1a1a2e; font-size: 32px; }
+    .total { font-size: 28px; font-weight: 700; color: #FF7A1A; }
+    .grid  { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Invoice #1042&lt;/h1&gt;
+  &lt;div class="grid"&gt;
+    &lt;div&gt;Client: Acme Corp&lt;/div&gt;
+    &lt;div&gt;Due: 2026-10-01&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;p class="total"&gt;$1,200.00&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+"""
+
+resp = requests.post(
+    "https://api.pdfsnap.dev/pdf",
+    headers={
+        "Authorization": "Bearer YOUR_API_KEY",
+        "Content-Type": "application/json",
+    },
+    json={
+        "html": html_string,
+        "options": {
+            "format": "A4",
+            "margin": {"top": "20mm", "bottom": "20mm", "left": "16mm", "right": "16mm"},
+            "printBackground": True,
+        }
+    }
+)
+
+resp.raise_for_status()
+with open("invoice.pdf", "wb") as f:
+    f.write(resp.content)
+
+print(f"PDF saved ({len(resp.content):,} bytes)")</pre>
+    </div>
+
+    <h3>Converting a live URL instead</h3>
+
+    <div class="code-block">
+      <div class="code-filename">url_to_pdf.py</div>
+      <pre>import requests
+
+resp = requests.post(
+    "https://api.pdfsnap.dev/pdf",
+    headers={
+        "Authorization": "Bearer YOUR_API_KEY",
+        "Content-Type": "application/json",
+    },
+    json={
+        "url": "https://app.example.com/reports/q3-2026",
+        "options": {
+            "format": "Letter",
+            "waitUntil": "networkidle0",  # wait for all async data
+            "printBackground": True,
+        }
+    }
+)
+
+resp.raise_for_status()
+with open("q3_report.pdf", "wb") as f:
+    f.write(resp.content)</pre>
+    </div>
+
+    <h3>Django / Flask integration</h3>
+
+    <div class="code-block">
+      <div class="code-filename">views.py (Django)</div>
+      <pre>import requests
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+
+def invoice_pdf(request, invoice_id):
+    invoice = Invoice.objects.get(pk=invoice_id)
+    html = render_to_string("invoices/pdf_template.html", {"invoice": invoice})
+
+    resp = requests.post(
+        "https://api.pdfsnap.dev/pdf",
+        headers={"Authorization": f"Bearer {settings.PDFSNAP_API_KEY}"},
+        json={"html": html, "options": {"format": "A4", "printBackground": True}},
+        timeout=30,
+    )
+    resp.raise_for_status()
+
+    return HttpResponse(
+        resp.content,
+        content_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="invoice-{invoice_id}.pdf"'},
+    )</pre>
+    </div>
+
+    <div class="verdict-box">
+      <div class="verdict-label">Verdict: REST API</div>
+      <p>Best for serverless environments, apps that need JavaScript rendering, and teams that don't want to maintain a browser binary. Zero system dependencies. Full CSS 3 + JS support. Adds a network call (~800ms p50 for most documents). Not ideal for air-gapped environments or extremely high-volume batch jobs where latency stacks up.</p>
+    </div>
+
+    <h2>Head-to-head comparison</h2>
+
+    <table class="comparison">
+      <thead>
+        <tr>
+          <th>Factor</th>
+          <th>WeasyPrint</th>
+          <th>ReportLab + xhtml2pdf</th>
+          <th>pdfsnap REST API</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Install complexity</td>
+          <td class="red">High (C libs)</td>
+          <td class="green">Low (pure Python)</td>
+          <td class="green">None (pip requests)</td>
+        </tr>
+        <tr>
+          <td>CSS support</td>
+          <td class="amber">CSS 2.1 + partial 3</td>
+          <td class="red">CSS 2.1 subset only</td>
+          <td class="green">Full CSS 3 + animations</td>
+        </tr>
+        <tr>
+          <td>JavaScript rendering</td>
+          <td class="red">No</td>
+          <td class="red">No</td>
+          <td class="green">Yes (real Chromium)</td>
+        </tr>
+        <tr>
+          <td>Web fonts (Google Fonts CDN)</td>
+          <td class="amber">Sometimes (network access needed)</td>
+          <td class="red">Manual font embedding</td>
+          <td class="green">Yes</td>
+        </tr>
+        <tr>
+          <td>Serverless (Lambda, Cloud Run)</td>
+          <td class="red">Custom container required</td>
+          <td class="green">Works out of box</td>
+          <td class="green">Works out of box</td>
+        </tr>
+        <tr>
+          <td>Latency</td>
+          <td class="green">~200ms in-process</td>
+          <td class="green">~100ms in-process</td>
+          <td class="amber">~800ms network round-trip</td>
+        </tr>
+        <tr>
+          <td>URL-to-PDF</td>
+          <td class="green">Yes</td>
+          <td class="red">No</td>
+          <td class="green">Yes</td>
+        </tr>
+        <tr>
+          <td>Maintenance burden</td>
+          <td class="red">You maintain the system lib versions</td>
+          <td class="amber">Minimal (pure Python)</td>
+          <td class="green">Zero (API handles it)</td>
+        </tr>
+        <tr>
+          <td>Offline / air-gapped</td>
+          <td class="green">Yes</td>
+          <td class="green">Yes</td>
+          <td class="red">Requires internet access</td>
+        </tr>
+        <tr>
+          <td>Free tier</td>
+          <td class="green">Open source / free</td>
+          <td class="green">Open source / free</td>
+          <td class="green">100 PDFs/mo free</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Which should you choose?</h2>
+
+    <p>The decision tree is simpler than it looks:</p>
+
+    <ul>
+      <li><strong>Does your HTML use modern CSS (Grid, custom properties, animations) or JavaScript?</strong> → REST API. Neither WeasyPrint nor ReportLab will render it correctly.</li>
+      <li><strong>Are you deploying to serverless (Lambda, Cloud Functions) without container support?</strong> → REST API or ReportLab. WeasyPrint's C dependencies are a packaging nightmare.</li>
+      <li><strong>Do you need air-gapped / offline operation?</strong> → WeasyPrint (if you control the environment) or ReportLab (for simple HTML).</li>
+      <li><strong>Are you generating data-driven reports from Python objects (not HTML templates)?</strong> → ReportLab directly (skip xhtml2pdf, use Platypus).</li>
+      <li><strong>Do you want to convert a live URL as-rendered in a browser?</strong> → REST API or WeasyPrint. ReportLab can't fetch and render URLs.</li>
+    </ul>
+
+    <div class="warn-box">
+      <strong>The hidden cost of "free":</strong> WeasyPrint and ReportLab are open source and free to use. But the engineering time debugging system lib versions, writing a Docker layer, and handling font embedding across platforms adds up. For many teams, paying $19/mo to never think about it is the right call.
+    </div>
+
+    <h2>Summary</h2>
+
+    <p>WeasyPrint is the right local library if you have a server with system-level dependencies and your HTML is document-oriented. ReportLab is the right local library if you need pure-Python portability and can simplify your HTML. A REST API is the right call for serverless environments, modern CSS, JavaScript rendering, and teams that want to stay out of the browser-maintenance business.</p>
+
+    <p>All three approaches work. The question is which failure mode you're willing to own.</p>
+
+  </div><!-- end .prose -->
+
+  <!-- RELATED POSTS -->
+  <div style="margin: 56px 0 0; padding: 32px; background: #10101E; border: 1px solid #26263A; border-radius: 14px;">
+    <h3 style="font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; color: #EEEEF5; margin-bottom: 20px;">Related articles</h3>
+    <ul style="list-style: none; margin: 0; padding: 0;">
+      <li style="margin-bottom: 12px;"><a href="./wkhtmltopdf-alternatives-2026.html" style="color: #00D2FF; text-decoration: underline; text-underline-offset: 3px; font-size: 15px;">wkhtmltopdf Alternatives in 2026</a> <span style="color: #5A5A72; font-size: 13px; margin-left: 8px;">&mdash; Puppeteer, Playwright, WeasyPrint, headless Chrome, REST APIs compared</span></li>
+      <li style="margin-bottom: 12px;"><a href="./html-to-pdf-nodejs.html" style="color: #00D2FF; text-decoration: underline; text-underline-offset: 3px; font-size: 15px;">HTML to PDF in Node.js</a> <span style="color: #5A5A72; font-size: 13px; margin-left: 8px;">&mdash; Puppeteer vs PDFKit vs REST API comparison with full code</span></li>
+      <li style="margin-bottom: 12px;"><a href="./django-html-to-pdf.html" style="color: #00D2FF; text-decoration: underline; text-underline-offset: 3px; font-size: 15px;">HTML to PDF in Django</a> <span style="color: #5A5A72; font-size: 13px; margin-left: 8px;">&mdash; View-based PDF generation, download headers, CI testing</span></li>
+      <li style="margin-bottom: 12px;"><a href="./generate-pdf-invoice-nodejs.html" style="color: #00D2FF; text-decoration: underline; text-underline-offset: 3px; font-size: 15px;">Generating PDF Invoices in Node.js</a> <span style="color: #5A5A72; font-size: 13px; margin-left: 8px;">&mdash; HTML invoice template, Puppeteer vs REST, email delivery</span></li>
+    </ul>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-box">
+    <h2>Convert HTML to PDF with one API call</h2>
+    <p>Full CSS 3 + JavaScript support. Works in Lambda, Cloud Run, and Vercel without any system dependencies.</p>
+    <a href="../index.html#pricing" class="cta-btn">Get your free API key &rarr;</a>
+    <p class="cta-sub">Free tier: 100 PDFs/mo &middot; No card required &middot; Cancel anytime</p>
+  </div>
+
+  <!-- CROSSLINKS -->
+  <div class="crosslinks">
+    <div class="crosslinks-label">Related Reading</div>
+    <div class="crosslinks-grid">
+
+      <a href="./html-to-pdf-nodejs.html" class="crosslink-card">
+        <div class="crosslink-tag">pdfsnap &middot; Tutorial</div>
+        <div class="crosslink-title">HTML to PDF in Node.js (Without wkhtmltopdf)</div>
+        <div class="crosslink-desc">Puppeteer, Playwright, and REST API compared for Node.js environments.</div>
+      </a>
+
+      <a href="./wkhtmltopdf-alternatives-2026.html" class="crosslink-card">
+        <div class="crosslink-tag">pdfsnap &middot; Migration</div>
+        <div class="crosslink-title">Why wkhtmltopdf is Dead in 2026</div>
+        <div class="crosslink-desc">Every viable replacement — and which to pick for your stack.</div>
+      </a>
+
+      <a href="https://shot.dev/blog/screenshot-url-one-call.html" class="crosslink-card">
+        <div class="crosslink-tag">shot.dev &middot; Tutorial</div>
+        <div class="crosslink-title">Screenshot Any URL with One API Call</div>
+        <div class="crosslink-desc">Same REST-first philosophy for screenshots instead of PDFs.</div>
+      </a>
+
+      <a href="https://snapmail.dev/blog/html-email-rendering.html" class="crosslink-card">
+        <div class="crosslink-tag">snapmail &middot; Tutorial</div>
+        <div class="crosslink-title">Preview HTML Email Across Clients via API</div>
+        <div class="crosslink-desc">Render your email template as it looks in Gmail, Outlook, Apple Mail.</div>
+      </a>
+
+    </div>
+  </div>
+
+</main>
+
+</body>
+</html>
